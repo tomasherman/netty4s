@@ -19,10 +19,9 @@ lazy val core = project.in(file("core")).settings(
   libraryDependencies ++= Seq(
     Dependencies.Cats.effect,
     Dependencies.Netty.all,
-    Dependencies.Other.newtype,
   )
 )
 
-name := "hello-world"
-organization := "ch.epfl.scala"
+name := "netty4s"
+organization := "tomasherman"
 version := "1.0"

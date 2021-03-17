@@ -6,8 +6,4 @@ object Dependencies {
   object Cats {
     val effect = "org.typelevel" %% "cats-effect" % "2.3.3"
   }
-
-  object Other {
-    val newtype = "io.estatico" %% "newtype" % "0.4.4"
-  }
 }
