@@ -30,12 +30,12 @@ lazy val root = withGithubPublish(project)
   .aggregate(examples, core)
 
 lazy val examples = withGithubPublish(project)
-  .in(file("examples"))
+  .in(file("code/examples"))
   .dependsOn(core)
   .settings(publish := false)
 
 lazy val core = withGithubPublish(project)
-  .in(file("core"))
+  .in(file("code/core"))
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Cats.effect,
