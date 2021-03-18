@@ -7,12 +7,16 @@ ThisBuild / scalaVersion := scala213
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches +=
   RefPredicate.StartsWith(Ref.Tag("v"))
+ThisBuild / githubWorkflowEnv := Map(
+  "PACKAGE_WRITE_TOKEN" -> "PACKAGE_WRITE_TOKEN"
+)
 
 def withGithubPublish(project: Project): Project = {
-  scala.util.Try(scala.sys.env("GITHUB_TOKEN")).toOption.map { token =>
+  scala.util.Try(scala.sys.env("GITHUB_TOKEN")).toOption.map { _ =>
     project.settings(
       githubOwner := "tomasherman",
-      githubRepository := "netty4s"
+      githubRepository := "netty4s",
+      githubTokenSource := TokenSource.Environment("PACKAGE_WRITE_TOKEN")
     )
   } getOrElse {
     project.disablePlugins(GitHubPackagesPlugin)

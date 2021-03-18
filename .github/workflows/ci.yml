@@ -15,7 +15,7 @@ on:
     tags: [v*]
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PACKAGE_WRITE_TOKEN: PACKAGE_WRITE_TOKEN
 
 jobs:
   build:
