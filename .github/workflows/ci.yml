@@ -14,7 +14,7 @@ on:
     branches: ['*']
 
 env:
-  PACKAGE_WRITE_TOKEN: PACKAGE_WRITE_TOKEN
+  PACKAGE_WRITE_TOKEN: ${{ secrets.PACKAGE_WRITE_TOKEN }}
 
 jobs:
   build:
