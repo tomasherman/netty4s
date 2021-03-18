@@ -10,9 +10,12 @@ trait Executor[F[_]] {
 }
 
 object Executor {
-  def catsEffect[F[_]: Effect]: Executor[F] = new Executor[F] {
-    override def fireAndForget[A](fa: F[A]): Unit = Effect[F].toIO(fa).unsafeRunAsyncAndForget()
+  def catsEffect[F[_]: Effect]: Executor[F] =
+    new Executor[F] {
+      override def fireAndForget[A](fa: F[A]): Unit =
+        Effect[F].toIO(fa).unsafeRunAsyncAndForget()
 
-    override def runToFuture[A](fa: F[A]): Future[A] = Effect[F].toIO(fa).unsafeToFuture()
-  }
+      override def runToFuture[A](fa: F[A]): Future[A] =
+        Effect[F].toIO(fa).unsafeToFuture()
+    }
 }

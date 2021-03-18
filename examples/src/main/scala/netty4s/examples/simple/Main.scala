@@ -13,19 +13,22 @@ object Main extends cats.effect.IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val router = Router.patmat[IO] {
       case "/a/b/c" => respondWith(IO.delay(???))
-      case "/ws" => action { req =>
-        auth(req).map {
-          case true => UpgradeWithWebsocket(Handler.SimpleWebsocket[IO](???, ???))
-          case false => RespondWith(???)
+      case "/ws" =>
+        action { req =>
+          auth(req).map {
+            case true =>
+              UpgradeWithWebsocket(Handler.SimpleWebsocket[IO](???, ???))
+            case false => RespondWith(???)
+          }
         }
-      }
     }
     val app = HttpApp.fromRouter[IO] {
       router
     }
     ServerBuilder
       .fromConfig[IO](Config())
-      .run(app).map(_ => ExitCode.Success)
+      .run(app)
+      .map(_ => ExitCode.Success)
   }
 
   def auth(req: HttpRequest): IO[Boolean] = IO.pure(true)

@@ -8,5 +8,6 @@ trait ActionBuilder[F[_]] {
 
 object ActionBuilder {
   def const[F[_]](action: F[Action[F]]): ActionBuilder[F] = _ => action
-  def lift[F[_]](f: HttpRequest => F[Action[F]]): ActionBuilder[F] = (httpRequest: HttpRequest) => f(httpRequest)
+  def lift[F[_]](f: HttpRequest => F[Action[F]]): ActionBuilder[F] =
+    (httpRequest: HttpRequest) => f(httpRequest)
 }
