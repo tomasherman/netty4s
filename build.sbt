@@ -3,7 +3,9 @@ val scala3 = "3.0.0-RC1"
 
 ThisBuild / crossScalaVersions := Seq(scala213, scala3)
 ThisBuild / scalaVersion := scala213
-
+ThisBuild / githubWorkflowPublishTargetBranches := Seq(
+  RefPredicate.Equals(Ref.Branch("master"))
+)
 ThisBuild / githubWorkflowEnv := Map(
   "PACKAGE_WRITE_TOKEN" -> "PACKAGE_WRITE_TOKEN"
 )
