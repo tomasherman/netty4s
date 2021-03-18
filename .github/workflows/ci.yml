@@ -12,7 +12,6 @@ on:
     branches: ['*']
   push:
     branches: ['*']
-    tags: [v*]
 
 env:
   PACKAGE_WRITE_TOKEN: PACKAGE_WRITE_TOKEN
@@ -67,7 +66,7 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main')
     strategy:
       matrix:
         os: [ubuntu-latest]
