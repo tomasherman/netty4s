@@ -7,12 +7,11 @@ ThisBuild / githubWorkflowPublishTargetBranches := Seq(
   RefPredicate.Equals(Ref.Branch("master"))
 )
 ThisBuild / githubWorkflowEnv := Map(
-  "PACKAGE_WRITE_TOKEN" -> "PACKAGE_WRITE_TOKEN"
+  "PACKAGE_WRITE_TOKEN" -> "${{ secrets.PACKAGE_WRITE_TOKEN }}"
 )
 
 def withGithubPublish(project: Project): Project = {
-  scala.util.Try(scala.sys.env("PACKAGE_WRITE_TOKEN")).toOption.map { token =>
-    println(s"token: $token")
+  scala.util.Try(scala.sys.env("PACKAGE_WRITE_TOKEN")).toOption.map { _ =>
     project
       .settings(
         githubOwner := "tomasherman",
