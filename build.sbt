@@ -8,19 +8,30 @@ ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches +=
   RefPredicate.StartsWith(Ref.Tag("v"))
 
-lazy val root = project.in(file("."))
-                       .dependsOn(examples)
-                       .dependsOn(core)
-
-lazy val examples = project.in(file("examples"))
-                           .dependsOn(core)
-
-lazy val core = project.in(file("core")).settings(
-  libraryDependencies ++= Seq(
-    Dependencies.Cats.effect,
-    Dependencies.Netty.all,
-  )
+val commonSettings = Seq(
 )
+
+lazy val root = project
+  .in(file("."))
+  .settings(publish := false)
+  .settings(commonSettings)
+  .aggregate(examples, core)
+
+lazy val examples = project
+  .in(file("examples"))
+  .dependsOn(core)
+  .settings(publish := false)
+  .settings(commonSettings)
+
+lazy val core = project
+  .in(file("core"))
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.Cats.effect,
+      Dependencies.Netty.all
+    )
+  )
+  .settings(commonSettings)
 
 name := "netty4s"
 organization := "tomasherman"
