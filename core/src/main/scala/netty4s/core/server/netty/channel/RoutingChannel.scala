@@ -14,10 +14,10 @@ class RoutingChannel[F[_]: Sync](router: Router[F], handlerCompiler: HandlerComp
 
   override def channelRead0(ctx: ChannelHandlerContext, jrequest: JHttpRequest): Unit = {
     val request = HttpRequest(jrequest)
-    val foundHandler = router.lookup(request)
-    foundHandler.build(request).flatMap {
+    val action: F[Action[F]] = router.lookup(request).build(request)
+    action.flatMap {
       case Action.RespondWith(response) => respondWith(ctx, response)
-      case Action.UpgradeWithWebsocket(handler) => upgradeToWebsocket(ctx, request.uri, handler)
+      case Action.UpgradeWithWebsocket(handler) => upgradeToWebsocket(ctx, request.uri, handler.asInstanceOf[WebsocketHandler[F]]) // scala3 bug?
     }
   }
 
