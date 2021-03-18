@@ -3,9 +3,11 @@ val scala3 = "3.0.0-RC1"
 
 ThisBuild / crossScalaVersions := Seq(scala213, scala3)
 ThisBuild / scalaVersion := scala213
+
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(
-  RefPredicate.Equals(Ref.Branch("master"))
+  // RefPredicate.Equals(Ref.Branch("master")) // disabled until scala 3 is out - publish fails with it
 )
+
 ThisBuild / githubWorkflowEnv := Map(
   "PACKAGE_WRITE_TOKEN" -> "${{ secrets.PACKAGE_WRITE_TOKEN }}"
 )
@@ -18,7 +20,6 @@ def withGithubPublish(project: Project): Project = {
         githubRepository := "netty4s",
         githubTokenSource := TokenSource.Environment("PACKAGE_WRITE_TOKEN")
       )
-      .enablePlugins(GitHubPackagesPlugin)
   } getOrElse {
     project.disablePlugins(GitHubPackagesPlugin)
   }
