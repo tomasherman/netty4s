@@ -1,11 +1,10 @@
 package netty4s.core.server.api
 
-import netty4s.core.model.{HttpRequest, HttpResponse}
+import io.netty.handler.codec.http.websocketx.WebSocketFrame
 
 sealed trait Handler[F[_]]
+sealed trait WebsocketHandler[F[_]] extends Handler[F]
 
 object Handler {
-  case class SimpleResponse[F[_]](compute: HttpRequest => F[HttpResponse]) extends Handler[F]
-
-  def http[F[_]](f: HttpRequest => F[HttpResponse]) = new SimpleResponse[F](f)
+  case class SimpleWebsocket[F[_]](incoming: WebSocketFrame => F[Unit], outgoing: F[WebSocketFrame]) extends WebsocketHandler[F]
 }
