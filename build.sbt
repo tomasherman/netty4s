@@ -11,7 +11,8 @@ ThisBuild / githubWorkflowEnv := Map(
 )
 
 def withGithubPublish(project: Project): Project = {
-  scala.util.Try(scala.sys.env("PACKAGE_WRITE_TOKEN")).toOption.map { _ =>
+  scala.util.Try(scala.sys.env("PACKAGE_WRITE_TOKEN")).toOption.map { token =>
+    println(s"token: $token")
     project
       .settings(
         githubOwner := "tomasherman",
