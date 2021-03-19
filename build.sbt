@@ -1,9 +1,10 @@
 val scala213 = "2.13.3"
 val scala3 = "3.0.0-RC1"
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 ThisBuild / crossScalaVersions := Seq(scala213, scala3)
 ThisBuild / scalaVersion := scala213
-
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(
   // RefPredicate.Equals(Ref.Branch("master")) // disabled until scala 3 is out - publish fails with it
 )
