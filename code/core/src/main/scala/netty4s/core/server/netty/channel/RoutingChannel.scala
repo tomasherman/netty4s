@@ -3,25 +3,17 @@ package netty4s.core.server.netty.channel
 import cats.effect.Sync
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http.FullHttpRequest
-import io.netty.handler.codec.http.websocketx.{
-  WebSocketFrameAggregator,
-  WebSocketServerProtocolHandler
-}
+import io.netty.handler.codec.http.websocketx.{WebSocketFrameAggregator, WebSocketServerProtocolHandler}
 import netty4s.core.model.JTypes.JHttpRequest
 import netty4s.core.model.{HttpRequest, HttpResponse}
-import netty4s.core.server.api.{
-  Action,
-  Executor,
-  HandlerCompiler,
-  Router,
-  WebsocketHandler
-}
+import netty4s.core.server.api.{Action, Executor, HandlerCompiler, Router, WebsocketHandler}
 import cats.syntax.flatMap._
 
 class RoutingChannel[F[_]: Sync](
     router: Router[F],
     handlerCompiler: HandlerCompiler[F],
-    executor: Executor[F]
+    executor: Executor[F],
+    config: RoutingChannel.Config
 ) extends SimpleChannelInboundHandler[FullHttpRequest](false) {
   private val F: Sync[F] = Sync[F]
 
@@ -34,13 +26,14 @@ class RoutingChannel[F[_]: Sync](
     val f = action.flatMap {
       case Action.RespondWith(response) => respondWith(ctx, response)
       case Action.UpgradeWithWebsocket(handler) =>
-        upgradeToWebsocket(ctx, request.uri, handler) // scala3 bug?
+        upgradeToWebsocket(ctx, request, request.uri, handler)
     }
     executor.fireAndForget(f)
   }
 
   private def upgradeToWebsocket(
       ctx: ChannelHandlerContext,
+      msg: HttpRequest,
       uri: String,
       handler: WebsocketHandler[F]
   ): F[Unit] = {
@@ -49,6 +42,7 @@ class RoutingChannel[F[_]: Sync](
         ctx.pipeline().addLast(new WebSocketServerProtocolHandler(uri))
         ctx.pipeline().addLast(new WebSocketFrameAggregator(1024))
         ctx.pipeline().addLast(handlerCompiler.compile(handler))
+        ctx.fireChannelRead(msg.request)
       }
     }
   }
@@ -57,7 +51,18 @@ class RoutingChannel[F[_]: Sync](
       ctx: ChannelHandlerContext,
       r: HttpResponse
   ): F[Unit] = {
-    F.delay(ctx.writeAndFlush(r.response))
+    F.delay {
+      ctx.executor().execute { () =>
+        ctx.writeAndFlush(r.response)
+        ctx.close()
+      }
+    }
   }
+}
 
+object RoutingChannel {
+  case class Config(keepAlive: Boolean)
+  object Config {
+    val default: Config = Config(keepAlive = false)
+  }
 }

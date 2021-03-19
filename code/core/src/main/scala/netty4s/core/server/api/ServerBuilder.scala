@@ -1,13 +1,19 @@
 package netty4s.core.server.api
 
-import cats.effect.Resource
+import cats.effect.{ConcurrentEffect, Resource}
+import netty4s.core.server.netty.NettyServerBuilder
 
 trait ServerBuilder[F[_]] {
-  def build(): Resource[F, Int]
-  def run(app: HttpApp): F[Unit]
+  def run(app: HttpApp[F]): F[Unit]
 }
 
 object ServerBuilder {
-  case class Config()
-  def fromConfig[F[_]](config: Config): ServerBuilder[F] = ???
+
+  def localhost[F[_]: ConcurrentEffect](port: Int = 8080): ServerBuilder[F] = {
+    fromConfig(ServerConfig.localhost(port))
+  }
+
+  def fromConfig[F[_]: ConcurrentEffect](
+      config: ServerConfig
+  ): ServerBuilder[F] = new NettyServerBuilder[F](config)
 }

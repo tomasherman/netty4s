@@ -32,7 +32,12 @@ lazy val root = withGithubPublish(project)
 lazy val examples = withGithubPublish(project)
   .in(file("code/examples"))
   .dependsOn(core)
-  .settings(publish := false)
+  .settings(
+    publish := false,
+    libraryDependencies ++= Seq(
+      ExamplesDependencies.FS2.core
+    )
+  )
 
 lazy val core = withGithubPublish(project)
   .in(file("code/core"))
