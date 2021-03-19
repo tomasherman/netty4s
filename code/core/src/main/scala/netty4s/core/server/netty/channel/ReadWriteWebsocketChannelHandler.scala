@@ -4,7 +4,7 @@ import cats.Monad
 import cats.effect.{Bracket, Concurrent, Sync}
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
-import netty4s.core.server.api.Handler.SimpleWebsocket
+import netty4s.core.server.api.Handler.ReadWriteWebSocket
 import netty4s.core.server.api.Executor
 import cats.effect.syntax.bracket._
 import io.netty.util.ReferenceCountUtil
@@ -18,8 +18,8 @@ import netty4s.core.server.netty.utils.FutureListeners
 
 import scala.annotation.nowarn
 
-class SimpleWebsocketChannelHandler[F[_]: Concurrent](
-    handler: SimpleWebsocket[F],
+class ReadWriteWebsocketChannelHandler[F[_]: Concurrent](
+    handler: ReadWriteWebSocket[F],
     executor: Executor[F]
 )(implicit b: Bracket[F, Throwable])
     extends SimpleChannelInboundHandler[WebSocketFrame](false) {
@@ -46,7 +46,7 @@ class SimpleWebsocketChannelHandler[F[_]: Concurrent](
     ctx.pipeline().remove(HandlerNames.ROUTER)
     val awaitChannelClose = registerChannelClose(ctx)
     val writeLoopTask = writeLoop(ctx)
-    val cancelledWriteLoop = Concurrent[F].race(awaitChannelClose, writeLoopTask)
+    val cancelledWriteLoop = Concurrent[F].race(awaitChannelClose, writeLoopTask) >> handler.onClose
     executor.fireAndForget(cancelledWriteLoop)
   }
 

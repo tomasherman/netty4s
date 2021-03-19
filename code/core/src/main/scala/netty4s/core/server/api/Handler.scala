@@ -6,8 +6,9 @@ sealed trait Handler
 sealed trait WebsocketHandler[F[_]] extends Handler
 
 object Handler {
-  case class SimpleWebsocket[F[_]](
+  case class ReadWriteWebSocket[F[_]](
       incoming: WebSocketFrame => F[Unit],
-      outgoing: F[WebSocketFrame]
+      outgoing: F[WebSocketFrame],
+      onClose: F[Unit]
   ) extends WebsocketHandler[F]
 }

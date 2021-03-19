@@ -25,7 +25,7 @@ object SimpleExample extends cats.effect.IOApp {
                 // RefCounting will hopefully not be necessary in real case, only used here due to echo-server nature of this handler
                 val read = { (wsframe: WebSocketFrame) => q.enqueue1(ReferenceCountUtil.retain(wsframe)) }
                 val write = q.dequeue1
-                UpgradeWithWebsocket(Handler.SimpleWebsocket[IO](read, write))
+                UpgradeWithWebsocket(readWriteWebsocket(read, write))
               }
             case false => IO.pure(respond(Unauthorized()))
           }
