@@ -36,7 +36,8 @@ lazy val examples = withGithubPublish(project)
   .settings(
     publish := false,
     libraryDependencies ++= Seq(
-      ExamplesDependencies.FS2.core
+      ExamplesDependencies.FS2.core,
+      ExamplesDependencies.Logging.logback
     )
   )
 
@@ -45,7 +46,8 @@ lazy val core = withGithubPublish(project)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.Cats.effect,
-      Dependencies.Netty.all
+      Dependencies.Netty.all,
+      Dependencies.Logging.scalaLogging
     )
   )
 

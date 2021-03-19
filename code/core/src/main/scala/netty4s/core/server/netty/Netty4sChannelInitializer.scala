@@ -3,11 +3,10 @@ package netty4s.core.server.netty
 import cats.effect.Sync
 import io.netty.channel.{Channel, ChannelInitializer}
 import io.netty.handler.codec.http.{HttpObjectAggregator, HttpServerCodec}
-import netty4s.core.server.api.{Executor, HandlerCompiler, HttpApp}
 import netty4s.core.server.netty.channel.RoutingChannel
 
 class Netty4sChannelInitializer[F[_]: Sync](
-    routingChannel: RoutingChannel[F]
+    routingChannelBuilder: () => RoutingChannel[F]
 ) extends ChannelInitializer[Channel] {
   override def initChannel(ch: Channel): Unit = {
     ch.pipeline()
@@ -15,7 +14,7 @@ class Netty4sChannelInitializer[F[_]: Sync](
       .addLast(new HttpObjectAggregator(1024))
       .addLast(
         HandlerNames.ROUTER,
-        routingChannel
+        routingChannelBuilder()
       )
   }
 }

@@ -54,7 +54,9 @@ class RoutingChannel[F[_]: Sync](
     F.delay {
       ctx.executor().execute { () =>
         ctx.writeAndFlush(r.response)
-        ctx.close()
+        if (!config.keepAlive) {
+          ctx.close()
+        }
       }
     }
   }

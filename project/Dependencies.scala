@@ -7,4 +7,7 @@ object Dependencies {
   object Cats {
     val effect = "org.typelevel" %% "cats-effect" % "2.3.3"
   }
+  object Logging {
+    val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
+  }
 }

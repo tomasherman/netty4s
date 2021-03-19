@@ -31,11 +31,7 @@ class SimpleWebsocketChannelHandler[F[_]: Concurrent](
       case ServerHandshakeStateEvent.HANDSHAKE_COMPLETE =>
       // ignore deprecated
       case _: HandshakeComplete => {
-        ctx.pipeline().remove(HandlerNames.ROUTER)
-        val awaitChannelClose = FutureListeners.uncancellable(ctx.channel().closeFuture())
-        val writeLoopTask = writeLoop(ctx)
-        val cancelledWriteLoop = Concurrent[F].race(awaitChannelClose, writeLoopTask)
-        executor.fireAndForget(cancelledWriteLoop)
+        onSuccessfulHandshake(ctx)
       }
       case other =>
         throw new Exception(s"Received unexpected UserEvent: $other for channel: ${ctx.channel()}")
@@ -44,6 +40,20 @@ class SimpleWebsocketChannelHandler[F[_]: Concurrent](
 
   override def channelRead0(ctx: ChannelHandlerContext, msg: WebSocketFrame): Unit = {
     handleRead(msg)
+  }
+
+  private def onSuccessfulHandshake(ctx: ChannelHandlerContext): Unit = {
+    ctx.pipeline().remove(HandlerNames.ROUTER)
+    val awaitChannelClose = registerChannelClose(ctx)
+    val writeLoopTask = writeLoop(ctx)
+    val cancelledWriteLoop = Concurrent[F].race(awaitChannelClose, writeLoopTask)
+    executor.fireAndForget(cancelledWriteLoop)
+  }
+
+  private def registerChannelClose(ctx: ChannelHandlerContext): F[Void] = {
+    FutureListeners.uncancellable[F, Void](
+      ctx.channel().closeFuture().addListener(FutureListeners.channelClosedLog(ctx.channel()))
+    )
   }
 
   private def writeLoop(ctx: ChannelHandlerContext): F[Unit] = {
