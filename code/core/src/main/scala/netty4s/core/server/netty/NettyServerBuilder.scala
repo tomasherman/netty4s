@@ -7,6 +7,7 @@ import io.netty.channel.kqueue.KQueue
 import io.netty.channel.{EventLoopGroup, ServerChannel}
 import netty4s.core.server.api.ServerConfig.{TcpSocketAddress, UnixSocket}
 import netty4s.core.server.api._
+import netty4s.core.server.netty.channel.RoutingChannel
 import netty4s.core.server.netty.utils.FutureListeners
 
 class NettyServerBuilder[F[_]: ConcurrentEffect](config: ServerConfig) extends ServerBuilder[F] {
@@ -53,14 +54,19 @@ class NettyServerBuilder[F[_]: ConcurrentEffect](config: ServerConfig) extends S
       httpApp: HttpApp[F],
       executor: Executor[F]
   ): ServerBootstrap = {
+    val routingChannel = new RoutingChannel[F](
+      httpApp.asRouter,
+      HandlerCompiler.make(executor),
+      executor,
+      RoutingChannel.Config.apply(keepAlive = config.keepAlive)
+    )
+
     new ServerBootstrap()
       .group(parentGroup, workerGroup)
       .channel(serverChannel)
       .childHandler(
         new Netty4sChannelInitializer[F](
-          httpApp,
-          HandlerCompiler.make(executor),
-          executor
+          routingChannel
         )
       )
   }

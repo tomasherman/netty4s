@@ -5,7 +5,7 @@ import netty4s.core.server.api.ServerConfig.{Bind, Threading}
 import java.net.InetAddress
 import java.nio.file.Path
 
-case class ServerConfig(bind: Bind, threading: Threading)
+case class ServerConfig(bind: Bind, threading: Threading, keepAlive: Boolean)
 
 object ServerConfig {
   sealed trait Bind
@@ -21,6 +21,7 @@ object ServerConfig {
   def localhost(port: Int): ServerConfig =
     ServerConfig(
       TcpSocketAddress(InetAddress.getLocalHost, port),
-      Threading.default
+      Threading.default,
+      keepAlive = true
     )
 }
