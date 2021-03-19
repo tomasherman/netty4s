@@ -1,17 +1,17 @@
 package netty4s.examples.simple
 import cats.effect.{ExitCode, IO}
-import netty4s.core.model.HttpRequest
-import netty4s.core.server.api.Action.{RespondWith, UpgradeWithWebsocket}
-import netty4s.core.server.api._
 import fs2.concurrent.Queue
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import io.netty.util.ReferenceCountUtil
+import netty4s.core.model.HttpRequest
+import netty4s.core.server.api.Action.UpgradeWithWebsocket
+import netty4s.core.server.api._
+import netty4s.core.server.api.dsl.Dsl
 
 import scala.util.Random
 
 object SimpleExample extends cats.effect.IOApp {
-
-  val dsl = new Dsl[IO]
+  val dsl: Dsl[IO] = Dsl.of[IO]
   import dsl._
 
   override def run(args: List[String]): IO[ExitCode] = {
