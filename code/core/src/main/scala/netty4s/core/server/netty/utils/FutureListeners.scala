@@ -1,9 +1,9 @@
 package netty4s.core.server.netty.utils
 
-import cats.effect.{Async, Concurrent, Sync}
-import com.typesafe.scalalogging.LazyLogging
-import io.netty.channel.{Channel, ChannelFuture, ChannelFutureListener}
-import io.netty.util.concurrent.{Future, FutureListener, GenericFutureListener}
+import cats.effect.{Async, Concurrent}
+import io.netty.channel.Channel
+import io.netty.util.concurrent.{Future, GenericFutureListener}
+import wvlet.log.LogSupport
 
 object FutureListeners {
   case object Cancelled extends Throwable("Underlying netty future was canceled")
@@ -43,9 +43,9 @@ object FutureListeners {
     }
 
   def channelClosedLog(channel: Channel): GenericFutureListener[Future[Void]] =
-    new GenericFutureListener[Future[Void]] with LazyLogging {
+    new GenericFutureListener[Future[Void]] with LogSupport {
       override def operationComplete(future: Future[Void]): Unit = {
-        logger.debug(s"channel ${channel} was closed")
+        debug(s"channel $channel was closed")
       }
     }
 }

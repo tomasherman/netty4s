@@ -7,6 +7,8 @@ import netty4s.core.model.HttpRequest
 import netty4s.core.server.api.Action.UpgradeWithWebsocket
 import netty4s.core.server.api._
 import netty4s.core.server.api.dsl.Dsl
+import wvlet.airframe._
+import wvlet.log.{LogLevel, Logger}
 
 import scala.util.Random
 
@@ -15,6 +17,8 @@ object SimpleExample extends cats.effect.IOApp {
   import dsl._
 
   override def run(args: List[String]): IO[ExitCode] = {
+    Logger.init
+    Logger.setDefaultLogLevel(LogLevel.DEBUG)
     val router = Router.patmat[IO] {
       case "/a/b/c" => respondWith(IO.delay(Ok()))
       case "/ws" =>

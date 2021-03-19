@@ -8,6 +8,7 @@ object Dependencies {
     val effect = "org.typelevel" %% "cats-effect" % "2.3.3"
   }
   object Logging {
-    val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2"
+    val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2" // no release for scala3 >:(
+    val airframeLog = "org.wvlet.airframe" %% "airframe-log" % "21.3.0"
   }
 }
