@@ -37,7 +37,7 @@ class NettyServerBuilder[F[_]: ConcurrentEffect](config: ServerConfig) extends S
       wrkGrp <- specifics.workerGroup
       bootstrap = makeBootstrap(srvGrp, wrkGrp, specifics.serverChannelClass, httpApp, Executor.catsEffect[F])
       _ <- Resource.liftF(
-        FutureListeners.toF(
+        FutureListeners.cancellable(
           bootstrap.bind(specifics.socketAddress).channel().closeFuture()
         )
       )

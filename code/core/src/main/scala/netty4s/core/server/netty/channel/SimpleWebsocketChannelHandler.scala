@@ -1,7 +1,7 @@
 package netty4s.core.server.netty.channel
 
 import cats.Monad
-import cats.effect.{Bracket, Sync}
+import cats.effect.{Bracket, Concurrent, Sync}
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import netty4s.core.server.api.Handler.SimpleWebsocket
@@ -14,10 +14,11 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler.{
   ServerHandshakeStateEvent
 }
 import netty4s.core.server.netty.HandlerNames
+import netty4s.core.server.netty.utils.FutureListeners
 
 import scala.annotation.nowarn
 
-class SimpleWebsocketChannelHandler[F[_]: Sync](
+class SimpleWebsocketChannelHandler[F[_]: Concurrent](
     handler: SimpleWebsocket[F],
     executor: Executor[F]
 )(implicit b: Bracket[F, Throwable])
@@ -31,8 +32,13 @@ class SimpleWebsocketChannelHandler[F[_]: Sync](
       // ignore deprecated
       case _: HandshakeComplete => {
         ctx.pipeline().remove(HandlerNames.ROUTER)
-        executor.fireAndForget(writeLoop(ctx))
+        val awaitChannelClose = FutureListeners.uncancellable(ctx.channel().closeFuture())
+        val writeLoopTask = writeLoop(ctx)
+        val cancelledWriteLoop = Concurrent[F].race(awaitChannelClose, writeLoopTask)
+        executor.fireAndForget(cancelledWriteLoop)
       }
+      case other =>
+        throw new Exception(s"Received unexpected UserEvent: $other for channel: ${ctx.channel()}")
     }
   }
 

@@ -1,6 +1,6 @@
 package netty4s.core.server.api
 
-import cats.effect.{Bracket, Sync}
+import cats.effect.{Bracket, Concurrent, Sync}
 import io.netty.channel.ChannelHandler
 import netty4s.core.BracketT
 import netty4s.core.server.netty.channel.SimpleWebsocketChannelHandler
@@ -10,10 +10,11 @@ trait HandlerCompiler[F[_]] {
 }
 
 object HandlerCompiler {
-  def make[F[_]: Sync: BracketT](executor: Executor[F]): HandlerCompiler[F] = new DefaultHandlerCompiler[F](executor)
+  def make[F[_]: Concurrent: BracketT](executor: Executor[F]): HandlerCompiler[F] =
+    new DefaultHandlerCompiler[F](executor)
 }
 
-class DefaultHandlerCompiler[F[_]: Sync: BracketT](executor: Executor[F]) extends HandlerCompiler[F] {
+class DefaultHandlerCompiler[F[_]: Concurrent: BracketT](executor: Executor[F]) extends HandlerCompiler[F] {
   override def compile(handler: WebsocketHandler[F]): ChannelHandler = {
     handler match {
       case h: Handler.SimpleWebsocket[F] => {

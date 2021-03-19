@@ -53,7 +53,7 @@ class TransportSpecifics[F[_]: Concurrent] {
   private def eventLoopGroup[E <: EventLoopGroup](
       group: => EventLoopGroup
   ): Resource[F, EventLoopGroup] = {
-    Resource.make(F.delay(group))(g => F.delay(FutureListeners.toF(g.shutdownGracefully())))
+    Resource.make(F.delay(group))(g => F.delay(FutureListeners.cancellable(g.shutdownGracefully())))
   }
 
 }
