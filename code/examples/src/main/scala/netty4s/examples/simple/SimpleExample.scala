@@ -7,7 +7,9 @@ import fs2.concurrent.Queue
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import io.netty.util.ReferenceCountUtil
 
-object Main extends cats.effect.IOApp {
+import scala.util.Random
+
+object SimpleExample extends cats.effect.IOApp {
 
   val dsl = new Dsl[IO]
   import dsl._
@@ -25,7 +27,7 @@ object Main extends cats.effect.IOApp {
                 val write = q.dequeue1
                 UpgradeWithWebsocket(Handler.SimpleWebsocket[IO](read, write))
               }
-            case false => IO.pure(respond(Ok()))
+            case false => IO.pure(respond(Unauthorized()))
           }
         }
     }
@@ -38,5 +40,5 @@ object Main extends cats.effect.IOApp {
       .map(_ => ExitCode.Success)
   }
 
-  def auth(req: HttpRequest): IO[Boolean] = IO.pure(true)
+  def auth(req: HttpRequest): IO[Boolean] = IO.delay(Random.nextBoolean())
 }

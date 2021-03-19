@@ -27,4 +27,6 @@ trait ResponseHttp11Dsl[F[_]] {
   private val version = HttpVersion.HTTP_1_1
   def Ok(): HttpResponse =
     HttpResponse(new DefaultFullHttpResponse(version, HttpResponseStatus.OK))
+  def Unauthorized(): HttpResponse =
+    HttpResponse(new DefaultFullHttpResponse(version, HttpResponseStatus.UNAUTHORIZED))
 }
