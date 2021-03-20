@@ -5,9 +5,10 @@ import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http.FullHttpRequest
 import io.netty.handler.codec.http.websocketx.{WebSocketFrameAggregator, WebSocketServerProtocolHandler}
 import netty4s.core.model.JTypes.JHttpRequest
-import netty4s.core.model.{HttpRequest, HttpResponse}
-import netty4s.core.server.api.{Action, Executor, HandlerCompiler, Router, WebsocketHandler}
+import netty4s.core.model.{HttpRequest, HttpResponse, JTypes}
+import netty4s.core.server.api.{Action, Executor, Handler, HandlerCompiler, Router, WebsocketHandler}
 import cats.syntax.flatMap._
+import io.netty.buffer.ByteBuf
 
 class RoutingChannel[F[_]: Sync](
     router: Router[F],
@@ -24,11 +25,16 @@ class RoutingChannel[F[_]: Sync](
     val request = HttpRequest(jrequest)
     val action: F[Action[F]] = router.lookup(request).build(request)
     val f = action.flatMap {
-      case Action.RespondWith(response) => respondWith(ctx, response)
+      case Action.HandlerAction(handler) => evalHandler(ctx, request, handler)
+      case Action.RespondWith(response)  => respondWith(ctx, response)
       case Action.UpgradeWithWebsocket(handler) =>
         upgradeToWebsocket(ctx, request, request.uri, handler)
     }
     executor.fireAndForget(f)
+  }
+
+  private def evalHandler(ctx: ChannelHandlerContext, req: HttpRequest, handler: Handler[F]): F[Unit] = {
+    handler.eval(req, ctx.alloc()).flatMap(respondWith(ctx, _))
   }
 
   private def upgradeToWebsocket(
@@ -47,13 +53,10 @@ class RoutingChannel[F[_]: Sync](
     }
   }
 
-  private def respondWith(
-      ctx: ChannelHandlerContext,
-      r: HttpResponse
-  ): F[Unit] = {
+  private def respondWith(ctx: ChannelHandlerContext, r: HttpResponse[ByteBuf]): F[Unit] = {
     F.delay {
       ctx.executor().execute { () =>
-        ctx.writeAndFlush(r.response)
+        ctx.writeAndFlush(JTypes.scalaToJava(r))
         if (!config.keepAlive) {
           ctx.close()
         }

@@ -4,7 +4,7 @@ import cats.Monad
 import cats.effect.{Bracket, Concurrent, Sync}
 import io.netty.channel.{ChannelHandlerContext, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
-import netty4s.core.server.api.Handler.ReadWriteWebSocket
+import netty4s.core.server.api.WebsocketHandler.ReadWriteWebSocket
 import netty4s.core.server.api.Executor
 import cats.effect.syntax.bracket._
 import io.netty.util.ReferenceCountUtil

@@ -17,7 +17,7 @@ object HandlerCompiler {
 class DefaultHandlerCompiler[F[_]: Concurrent: BracketT](executor: Executor[F]) extends HandlerCompiler[F] {
   override def compile(handler: WebsocketHandler[F]): ChannelHandler = {
     handler match {
-      case h: Handler.ReadWriteWebSocket[F] => {
+      case h: WebsocketHandler.ReadWriteWebSocket[F] => {
         new ReadWriteWebsocketChannelHandler[F](h, executor)
       }
     }

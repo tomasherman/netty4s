@@ -4,7 +4,7 @@ import fs2.concurrent.Queue
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import io.netty.util.ReferenceCountUtil
 import netty4s.core.model.HttpRequest
-import netty4s.core.server.api.Action.UpgradeWithWebsocket
+import netty4s.core.server.api.Action.{RespondWith, UpgradeWithWebsocket}
 import netty4s.core.server.api._
 import netty4s.core.server.api.dsl.Dsl
 import wvlet.airframe._
@@ -20,7 +20,13 @@ object SimpleExample extends cats.effect.IOApp {
     Logger.init
     Logger.setDefaultLogLevel(LogLevel.DEBUG)
     val router = Router.patmat[IO] {
-      case "/a/b/c" => respondWith(IO.delay(Ok()))
+      case "/a/b/c" => handleWith(Handler.serDe((_: String) => IO.delay(Ok("thx for calling"))))
+      case "/test/serde" =>
+        handleWith(Handler.serDe { (str: String) =>
+          IO.delay {
+            Ok(str)
+          }
+        })
       case "/ws" =>
         action { req =>
           auth(req).flatMap {
@@ -31,7 +37,7 @@ object SimpleExample extends cats.effect.IOApp {
                 val write = q.dequeue1
                 UpgradeWithWebsocket(readWriteWebsocket(read, write))
               }
-            case false => IO.pure(respond(Unauthorized()))
+            case false => IO.pure(RespondWith(Unauthorized()))
           }
         }
     }
@@ -39,7 +45,7 @@ object SimpleExample extends cats.effect.IOApp {
       router
     }
     ServerBuilder
-      .localhost[IO]()
+      .fromConfig[IO](ServerConfig.localhost(8080).copy(keepAlive = false))
       .run(app)
       .map(_ => ExitCode.Success)
   }

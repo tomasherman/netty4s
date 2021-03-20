@@ -2,7 +2,7 @@ package netty4s.core.server.api.dsl
 
 import cats.effect.Sync
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
-import netty4s.core.server.api.Handler.ReadWriteWebSocket
+import netty4s.core.server.api.WebsocketHandler.ReadWriteWebSocket
 import netty4s.core.server.api.WebsocketHandler
 
 trait HandlersDsl[F[_]] {
