@@ -35,6 +35,11 @@ lazy val examples = withGithubPublish(project)
   .dependsOn(core)
   .settings(
     publish := false,
+    javaOptions := Seq(
+      "--add-opens java.base/jdk.internal.misc=ALL-UNNAMED",
+      "-Dio.netty.tryReflectionSetAccessible=true"
+    ),
+    fork := true,
     libraryDependencies ++= Seq(
       ExamplesDependencies.FS2.core,
       ExamplesDependencies.Circe.generic

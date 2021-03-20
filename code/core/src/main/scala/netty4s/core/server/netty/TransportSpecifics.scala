@@ -2,7 +2,7 @@ package netty4s.core.server.netty
 
 import cats.effect.{Concurrent, Resource, Sync}
 import io.netty.channel.epoll.{EpollEventLoopGroup, EpollServerDomainSocketChannel, EpollServerSocketChannel}
-import io.netty.channel.kqueue.{KQueueEventLoopGroup, KQueueServerDomainSocketChannel}
+import io.netty.channel.kqueue.{KQueueEventLoopGroup, KQueueServerDomainSocketChannel, KQueueServerSocketChannel}
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel.unix.DomainSocketAddress
@@ -28,6 +28,15 @@ class TransportSpecifics[F[_]: Concurrent] {
     Specifics(
       classOf[KQueueServerDomainSocketChannel],
       new DomainSocketAddress(socketPath.toFile),
+      eventLoopGroup(new KQueueEventLoopGroup(1)),
+      eventLoopGroup(new KQueueEventLoopGroup(workerThreadCount))
+    )
+  }
+
+  def kqueue(address: InetAddress, port: Int, workerThreadCount: Int): Specifics[F, KQueueServerSocketChannel] = {
+    Specifics(
+      classOf[KQueueServerSocketChannel],
+      new InetSocketAddress(address, port),
       eventLoopGroup(new KQueueEventLoopGroup(1)),
       eventLoopGroup(new KQueueEventLoopGroup(workerThreadCount))
     )

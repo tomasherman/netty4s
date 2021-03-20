@@ -3,7 +3,7 @@ import cats.effect.{ExitCode, IO}
 import fs2.concurrent.Queue
 import io.circe.Encoder
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
-import io.netty.util.ReferenceCountUtil
+import io.netty.util.{ReferenceCountUtil, ResourceLeakDetector}
 import netty4s.core.model.HttpRequest
 import netty4s.core.server.api.Action.{RespondWith, UpgradeWithWebsocket}
 import netty4s.core.server.api._
@@ -11,12 +11,13 @@ import netty4s.core.server.api.dsl.Dsl
 import wvlet.airframe._
 import wvlet.log.{LogLevel, Logger}
 
+import java.util.Properties
 import scala.util.Random
 
 object SimpleExample extends cats.effect.IOApp {
   val dsl: Dsl[IO] = Dsl.of[IO]
   import dsl._
-
+  System.setProperty("io.netty.leakDetection.level", "paranoid")
   case class ExampleJson(val1: String, val2: String)
 
   object ExampleJson {
@@ -31,6 +32,7 @@ object SimpleExample extends cats.effect.IOApp {
       case "/a/b/c" => handleWith(Handler.serDe((_: String) => IO.delay(Ok("thx for calling"))))
       case "/test/serde" =>
         handleWith(Handler.serDe { (str: String) =>
+          println(str)
           IO.delay {
             Ok(ExampleJson(str, str.toUpperCase))
           }

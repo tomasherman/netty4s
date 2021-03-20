@@ -12,7 +12,7 @@ object Dependencies {
     val airframeLog = "org.wvlet.airframe" %% "airframe-log" % "21.3.0"
   }
   object Circe {
-    val circeVersion = "0.12.3"
+    val circeVersion = "0.14.0-M4"
     val core = "io.circe" %% "circe-core" % circeVersion
   }
 }

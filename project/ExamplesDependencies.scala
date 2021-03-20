@@ -6,7 +6,7 @@ object ExamplesDependencies {
   }
 
   object Circe {
-    val circeVersion = "0.12.3"
+    val circeVersion = "0.14.0-M4"
     val generic = "io.circe" %% "circe-generic" % circeVersion
   }
 

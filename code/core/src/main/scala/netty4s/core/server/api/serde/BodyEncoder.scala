@@ -2,7 +2,6 @@ package netty4s.core.server.api.serde
 
 import io.netty.buffer.{ByteBuf, ByteBufAllocator}
 import io.netty.handler.codec.http.HttpHeaderNames
-import io.netty.util.AsciiString
 import netty4s.core.model.HttpResponse
 
 object BodyEncoder {

@@ -27,6 +27,8 @@ class NettyServerBuilder[F[_]: ConcurrentEffect](config: ServerConfig) extends S
       case TcpSocketAddress(address, port) =>
         if (Epoll.isAvailable) {
           TransportSpecifics.default[F].epoll(address, port, workerThreadCount)
+        } else if(KQueue.isAvailable) {
+          TransportSpecifics.default[F].kqueue(address, port, workerThreadCount)
         } else {
           TransportSpecifics.default[F].nio(address, port, workerThreadCount)
         }
