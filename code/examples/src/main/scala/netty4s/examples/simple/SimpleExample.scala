@@ -1,6 +1,7 @@
 package netty4s.examples.simple
 import cats.effect.{ExitCode, IO}
 import fs2.concurrent.Queue
+import io.circe.Encoder
 import io.netty.handler.codec.http.websocketx.WebSocketFrame
 import io.netty.util.ReferenceCountUtil
 import netty4s.core.model.HttpRequest
@@ -16,6 +17,13 @@ object SimpleExample extends cats.effect.IOApp {
   val dsl: Dsl[IO] = Dsl.of[IO]
   import dsl._
 
+  case class ExampleJson(val1: String, val2: String)
+
+  object ExampleJson {
+    import io.circe.generic.semiauto.deriveEncoder
+    implicit val encoder: Encoder[ExampleJson] = deriveEncoder[ExampleJson]
+  }
+
   override def run(args: List[String]): IO[ExitCode] = {
     Logger.init
     Logger.setDefaultLogLevel(LogLevel.DEBUG)
@@ -24,7 +32,7 @@ object SimpleExample extends cats.effect.IOApp {
       case "/test/serde" =>
         handleWith(Handler.serDe { (str: String) =>
           IO.delay {
-            Ok(str)
+            Ok(ExampleJson(str, str.toUpperCase))
           }
         })
       case "/ws" =>

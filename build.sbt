@@ -37,6 +37,7 @@ lazy val examples = withGithubPublish(project)
     publish := false,
     libraryDependencies ++= Seq(
       ExamplesDependencies.FS2.core,
+      ExamplesDependencies.Circe.generic
     )
   )
 
@@ -46,7 +47,8 @@ lazy val core = withGithubPublish(project)
     libraryDependencies ++= Seq(
       Dependencies.Cats.effect,
       Dependencies.Netty.all,
-      Dependencies.Logging.airframeLog
+      Dependencies.Logging.airframeLog,
+      Dependencies.Circe.core
     )
   )
 

@@ -1,5 +1,6 @@
 package netty4s.core.server.api.serde
 
+import io.circe.{Encoder, Json}
 import io.netty.buffer.{ByteBuf, ByteBufAllocator, ByteBufUtil}
 import io.netty.handler.codec.http.HttpHeaderValues
 import io.netty.util.AsciiString
@@ -38,4 +39,8 @@ object Ser {
   }
 
   implicit val stringSer: Ser[String] = Ser[Array[Byte]].contraMap(_.getBytes, HttpHeaderValues.TEXT_PLAIN)
+
+  implicit val jsonSer: Ser[Json] = Ser[String].contraMap(_.noSpaces, HttpHeaderValues.APPLICATION_JSON)
+
+  implicit def jsonEncoderSer[A: Encoder]: Ser[A] = Ser[Json].contraMap(a => Encoder[A].apply(a))
 }
